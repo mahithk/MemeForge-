@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Meme Generator 😂</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3ce);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            width: 100%;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        .meme-display {
+            flex: 2;
+            min-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .template {
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+            aspect-ratio: 1;
+        }
+
+        .template:hover {
+            transform: scale(1.05);
+        }
+
+        .template img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .text-controls {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+
+        .color-input {
+            height: 45px;
+        }
+
+        .add-text-btn {
+            background: #ff5e5e;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .add-text-btn:hover {
+            background: #ff7c7c;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 94, 94, 0.4);
+        }
+
+        .emojis {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .emoji {
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .emoji:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .meme-canvas {
+            width: 100%;
+            max-width: 500px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #meme-img {
+            width: 100%;
+            display: block;
+        }
+
+        .text-box {
+            position: absolute;
+            cursor: move;
+            padding: 10px;
+            border-radius: 5px;
+            user-select: none;
+            text-align: center;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .text-box.selected {
+            outline: 2px dashed yellow;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #6e45e2, #ff5e5e);
+            color: white;
+            font-size: 1.5rem;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            animation: none;
+        }
+
+        .glowing-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff5e5e, #ffab5e);
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 94, 94, 0.4);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .glowing-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 94, 94, 0.6);
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(110, 69, 226, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(110, 69, 226, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 0 0 rgba(110, 69, 226, 0.4); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(255, 94, 94, 0.6); }
+            to { box-shadow: 0 0 20px rgba(255, 94, 94, 0.9), 0 0 30px rgba(255, 94, 94, 0.6); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .meme-display, .controls {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Meme Generator 😂</h1>
+            <p class="tagline">Create hilarious memes in seconds!</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls">
+                <h2 class="section-title">Create Your Meme</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p>Upload your own image</p>
+                    <p><small>or drag and drop</small></p>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                </div>
+
+                <h3>Or choose a template:</h3>
+                <div class="template-grid">
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/ds/small_file_size/Big_quality.png?width=300&height=300" alt="Meme template 1">
+                    </div>
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/buzz/memes/memes_everywhere.png?width=300&height=300" alt="Meme template 2">
+                    </div>
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/disastergirl/you_use_the_meme_generator/and_its_awesome.png?width=300&height=300" alt="Meme template 3">
+                    </div>
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/doge/to_the_moon/and_beyond.png?width=300&height=300" alt="Meme template 4">
+                    </div>
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/patrick/me_using_this_meme_generator/this_is_so_cool.png?width=300&height=300" alt="Meme template 5">
+                    </div>
+                    <div class="template">
+                        <img src="https://api.memegen.link/images/smart/clever_girl/this_meme_generator_is_awesome.png?width=300&height=300" alt="Meme template 6">
+                    </div>
+                </div>
+
+                <div class="text-controls">
+                    <h3>Add Text to Your Meme</h3>
+                    <div class="control-group">
+                        <label for="textInput">Text Content:</label>
+                        <input type="text" id="textInput" placeholder="Enter meme text here">
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSelect">Font Style:</label>
+                        <select id="fontSelect">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                            <option value="'Impact', sans-serif">Impact</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="colorInput">Text Color:</label>
+                        <input type="color" id="colorInput" class="color-input" value="#ffffff">
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Font Size:</label>
+                        <input type="range" id="fontSize" min="10" max="60" value="30">
+                    </div>
+                    <button class="add-text-btn" id="addTextBtn">Add Text to Meme</button>
+                </div>
+
+                <h3>Add Emojis & Stickers</h3>
+                <div class="emojis">
+                    <span class="emoji" data-emoji="😂">😂</span>
+                    <span class="emoji" data-emoji="😍">😍</span>
+                    <span class="emoji" data-emoji="😎">😎</span>
+                    <span class="emoji" data-emoji="🔥">🔥</span>
+                    <span class="emoji" data-emoji="👍">👍</span>
+                    <span class="emoji" data-emoji="🎉">🎉</span>
+                    <span class="emoji" data-emoji="💀">💀</span>
+                    <span class="emoji" data-emoji="👀">👀</span>
+                </div>
+            </div>
+
+            <div class="meme-display">
+                <h2 class="section-title">Your Meme Masterpiece</h2>
+                <div class="meme-canvas">
+                    <img id="meme-img" src="https://api.memegen.link/images/ds/small_file_size/Big_quality.png?width=500" alt="Meme template">
+                    <!-- Text boxes will be added here dynamically -->
+                </div>
+                
+                <button class="download-btn" id="downloadBtn">
+                    <i class="fas fa-download"></i> Download Meme
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Made with ❤️ and 😂 | Interactive Meme Generator © 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const uploadArea = document.getElementById('uploadArea');
+            const imageUpload = document.getElementById('imageUpload');
+            const memeImg = document.getElementById('meme-img');
+            const addTextBtn = document.getElementById('addTextBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const textInput = document.getElementById('textInput');
+            const fontSelect = document.getElementById('fontSelect');
+            const colorInput = document.getElementById('colorInput');
+            const fontSize = document.getElementById('fontSize');
+            const emojis = document.querySelectorAll('.emoji');
+            const templates = document.querySelectorAll('.template');
+            
+            let currentTextElement = null;
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+            
+            // Upload image functionality
+            uploadArea.addEventListener('click', () => {
+                imageUpload.click();
+            });
+            
+            imageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        memeImg.src = event.target.result;
+                        // Clear existing text boxes
+                        document.querySelectorAll('.text-box').forEach(box => box.remove());
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.3)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = '';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        memeImg.src = event.target.result;
+                        // Clear existing text boxes
+                        document.querySelectorAll('.text-box').forEach(box => box.remove());
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Template selection
+            templates.forEach(template => {
+                template.addEventListener('click', () => {
+                    memeImg.src = template.querySelector('img').src;
+                    // Clear existing text boxes
+                    document.querySelectorAll('.text-box').forEach(box => box.remove());
+                });
+            });
+            
+            // Add text to meme
+            addTextBtn.addEventListener('click', () => {
+                if (!textInput.value.trim()) return;
+                
+                const textBox = document.createElement('div');
+                textBox.className = 'text-box';
+                textBox.textContent = textInput.value;
+                textBox.style.fontFamily = fontSelect.value;
+                textBox.style.color = colorInput.value;
+                textBox.style.fontSize = `${fontSize.value}px`;
+                textBox.style.left = '50%';
+                textBox.style.top = '50%';
+                textBox.style.transform = 'translate(-50%, -50%)';
+                
+                // Make text box draggable
+                textBox.addEventListener('mousedown', startDragging);
+                
+                // Select text box on click
+                textBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectTextBox(textBox);
+                });
+                
+                document.querySelector('.meme-canvas').appendChild(textBox);
+                selectTextBox(textBox);
+                
+                // Clear input
+                textInput.value = '';
+            });
+            
+            // Add emoji to meme
+            emojis.forEach(emoji => {
+                emoji.addEventListener('click', () => {
+                    const emojiText = emoji.getAttribute('data-emoji');
+                    
+                    const textBox = document.createElement('div');
+                    textBox.className = 'text-box';
+                    textBox.textContent = emojiText;
+                    textBox.style.fontSize = '40px';
+                    textBox.style.left = '50%';
+                    textBox.style.top = '50%';
+                    textBox.style.transform = 'translate(-50%, -50%)';
+                    
+                    // Make emoji draggable
+                    textBox.addEventListener('mousedown', startDragging);
+                    
+                    // Select emoji on click
+                    textBox.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectTextBox(textBox);
+                    });
+                    
+                    document.querySelector('.meme-canvas').appendChild(textBox);
+                    selectTextBox(textBox);
+                });
+            });
+            
+            // Download meme
+            downloadBtn.addEventListener('click', () => {
+                // Create a temporary canvas to draw the meme
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const memeCanvas = document.querySelector('.meme-canvas');
+                
+                canvas.width = memeImg.naturalWidth;
+                canvas.height = memeImg.naturalHeight;
+                
+                // Draw image on canvas
+                ctx.drawImage(memeImg, 0, 0, canvas.width, canvas.height);
+                
+                // Draw text boxes on canvas
+                document.querySelectorAll('.text-box').forEach(box => {
+                    const style = window.getComputedStyle(box);
+                    
+                    // Calculate position and size relative to canvas
+                    const x = (box.offsetLeft / memeCanvas.offsetWidth) * canvas.width;
+                    const y = (box.offsetTop / memeCanvas.offsetHeight) * canvas.height;
+                    const fontSize = parseInt(style.fontSize) * (canvas.width / memeCanvas.offsetWidth);
+                    
+                    ctx.font = `${fontSize}px ${style.fontFamily}`;
+                    ctx.fillStyle = style.color;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(box.textContent, x, y + fontSize/3);
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'my-meme.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+            
+            // Text box selection and dragging functions
+            function selectTextBox(textBox) {
+                // Deselect previous text box
+                if (currentTextElement) {
+                    currentTextElement.classList.remove('selected');
+                }
+                
+                // Select new text box
+                textBox.classList.add('selected');
+                currentTextElement = textBox;
+                
+                // Update controls to match selected text
+                textInput.value = textBox.textContent;
+                fontSelect.value = textBox.style.fontFamily;
+                colorInput.value = rgbToHex(textBox.style.color);
+                fontSize.value = parseInt(textBox.style.fontSize);
+            }
+            
+            function startDragging(e) {
+                isDragging = true;
+                currentTextElement = e.target;
+                selectTextBox(currentTextElement);
+                
+                // Calculate offset
+                const rect = currentTextElement.getBoundingClientRect();
+                offset.x = e.clientX - rect.left;
+                offset.y = e.clientY - rect.top;
+                
+                // Add event listeners for dragging
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDragging);
+                
+                e.preventDefault();
+            }
+            
+            function onDrag(e) {
+                if (!isDragging || !currentTextElement) return;
+                
+                const memeCanvas = document.querySelector('.meme-canvas');
+                const rect = memeCanvas.getBoundingClientRect();
+                
+                // Calculate new position
+                let x = e.clientX - rect.left - offset.x;
+                let y = e.clientY - rect.top - offset.y;
+                
+                // Constrain to meme canvas
+                x = Math.max(0, Math.min(x, memeCanvas.offsetWidth - currentTextElement.offsetWidth));
+                y = Math.max(0, Math.min(y, memeCanvas.offsetHeight - currentTextElement.offsetHeight));
+                
+                // Apply new position
+                currentTextElement.style.left = `${x}px`;
+                currentTextElement.style.top = `${y}px`;
+                currentTextElement.style.transform = 'none';
+            }
+            
+            function stopDragging() {
+                isDragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', stopDragging);
+            }
+            
+            // Helper function to convert RGB to Hex
+            function rgbToHex(rgb) {
+                if (rgb.startsWith('#')) return rgb;
+                
+                const rgbValues = rgb.match(/\d+/g);
+                if (!rgbValues || rgbValues.length < 3) return '#ffffff';
+                
+                return '#' + ((1 << 24) + (parseInt(rgbValues[0]) << 16) + (parseInt(rgbValues[1]) << 8) + parseInt(rgbValues[2])).toString(16).slice(1);
+            }
+            
+            // Update selected text box when controls change
+            textInput.addEventListener('input', () => {
+                if (currentTextElement) {
+                    currentTextElement.textContent = textInput.value;
+                }
+            });
+            
+            fontSelect.addEventListener('change', () => {
+                if (currentTextElement) {
+                    currentTextElement.style.fontFamily = fontSelect.value;
+                }
+            });
+            
+            colorInput.addEventListener('input', () => {
+                if (currentTextElement) {
+                    currentTextElement.style.color = colorInput.value;
+                }
+            });
+            
+            fontSize.addEventListener('input', () => {
+                if (currentTextElement) {
+                    currentTextElement.style.fontSize = `${fontSize.value}px`;
+                }
+            });
+            
+            // Deselect text box when clicking on canvas
+            document.querySelector('.meme-canvas').addEventListener('click', (e) => {
+                if (e.target === document.querySelector('.meme-canvas') || e.target === memeImg) {
+                    if (currentTextElement) {
+                        currentTextElement.classList.remove('selected');
+                        currentTextElement = null;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
